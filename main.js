@@ -15,25 +15,24 @@ if (localStorage.getItem("bestBrain")) {
   for (let i in cars) {
     cars[i].brain = JSON.parse(localStorage.getItem("bestBrain"));
     if (i != 0) {
-      NeuralNetwork.mutate(cars[i].brain, 0.5);
+      NeuralNetwork.mutate(cars[i].brain, 0.1);
     }
   }
 }
 
-const traffic = [
-  new Car(road.getLaneCenter(1), -0, 30, 50, "DUMMY", 2),
-  new Car(road.getLaneCenter(0), -100, 30, 50, "DUMMY", 2),
-  new Car(road.getLaneCenter(2), -100, 30, 50, "DUMMY", 2),
-  new Car(road.getLaneCenter(0), -200, 30, 50, "DUMMY", 2),
-  new Car(road.getLaneCenter(1), -200, 30, 50, "DUMMY", 2),
-  // new Car(road.getLaneCenter(1), -500, 30, 250, "DUMMY", 2),
-  // new Car(road.getLaneCenter(2), -400, 30, 50, "DUMMY", 2),
-  // new Car(road.getLaneCenter(0), -800, 30, 50, "DUMMY", 2),
-  // new Car(road.getLaneCenter(1), -900, 30, 50, "DUMMY", 2),
-  // new Car(road.getLaneCenter(2), -1100, 30, 50, "DUMMY", 2),
-  // new Car(road.getLaneCenter(0), -1200, 30, 50, "DUMMY", 2),
-  // new Car(road.getLaneCenter(1), -1300, 30, 50, "DUMMY", 2),
-];
+const traffic = [];
+
+function increaseTraffic() {
+  for (let i = 0; i < 10; i++) {
+    const carsOnRow = weightedRand({ 1: 0.3, 2: 0.7 });
+    for (let lane of getRandomNumbers(carsOnRow, road.laneCount)) {
+      traffic.push(
+        new Car(road.getLaneCenter(lane), -i * 150, 30, 50, "DUMMY", 2)
+      );
+    }
+  }
+}
+increaseTraffic();
 
 animate();
 

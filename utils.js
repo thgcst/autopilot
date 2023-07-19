@@ -38,3 +38,31 @@ function polysIntersect(poly1, poly2) {
   }
   return false;
 }
+
+function getRandomNumbers(n, k) {
+  if (n > k) {
+    throw new Error("n must be less than or equal to k");
+  }
+
+  const result = [];
+  const availableNumbers = Array.from({ length: k + 1 }, (_, i) => i);
+
+  for (let i = 0; i < n; i++) {
+    const randomIndex = Math.floor(Math.random() * availableNumbers.length);
+    const randomNumber = availableNumbers[randomIndex];
+    result.push(randomNumber);
+    availableNumbers.splice(randomIndex, 1);
+  }
+
+  return result;
+}
+
+function weightedRand(spec) {
+  var i,
+    sum = 0,
+    r = Math.random();
+  for (i in spec) {
+    sum += spec[i];
+    if (r <= sum) return Number(i);
+  }
+}
