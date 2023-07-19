@@ -11,29 +11,35 @@ class Car {
     this.friction = 0.05;
     this.angle = 0;
     this.damaged = false;
+    this.parked = false;
 
     this.useBrain = controlType === "AI";
 
     if (controlType !== "DUMMY") {
       this.sensor = new Sensor(this);
-      this.brain = new NeuralNetwork([this.sensor.rayCount, 6, 6, 4]);
+      this.brain = new NeuralNetwork([this.sensor.rayCount + 2, 6, 4]);
     }
     this.controls = new Controls(controlType);
   }
 
-  update(roadBorders, traffic) {
+  update(roadBorders, traffic, spotPolygon) {
     if (!this.damaged) {
       this.#move();
       this.polygon = this.#createPolygon();
       this.damaged = this.#assessDamage(roadBorders, traffic);
+      this.distanceToSpot = distanceBetween(this, spot);
     }
 
     if (this.sensor) {
-      this.sensor.update(roadBorders, traffic);
+      this.parked = this.#assessParking(spotPolygon);
+      this.sensor.update(spotPolygon);
       const offsets = this.sensor.readings.map((s) =>
         s == null ? 0 : 1 - s.offset
       );
-      const outputs = NeuralNetwork.feedForward(offsets, this.brain);
+      const outputs = NeuralNetwork.feedForward(
+        [...offsets, this.parked ? 1 : 0, 1 / this.distanceToSpot],
+        this.brain
+      );
 
       if (this.useBrain) {
         this.controls.forward = outputs[0];
@@ -55,6 +61,14 @@ class Car {
         return true;
       }
     }
+    return false;
+  }
+
+  #assessParking(spotPolygon) {
+    if (isInside(this.polygon, spotPolygon)) {
+      return true;
+    }
+
     return false;
   }
 
@@ -84,7 +98,6 @@ class Car {
   #move() {
     if (this.controls.forward) {
       this.speed += lerp(0, this.acceleration, this.controls.forward);
-      // this.speed += this.acceleration;
     }
     if (this.controls.reverse) {
       this.speed -= lerp(0, this.acceleration, this.controls.reverse);

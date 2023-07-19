@@ -9,8 +9,6 @@ class Controls {
       case "KEYS":
         this.#addKeyboardListeners();
         break;
-      default:
-        this.forward = true;
     }
   }
 

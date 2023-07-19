@@ -7,9 +7,8 @@ class Road {
     this.left = x - width / 2;
     this.right = x + width / 2;
 
-    const infinity = 100000000;
-    this.top = -infinity;
-    this.bottom = infinity;
+    this.top = -500;
+    this.bottom = 500;
 
     const topLeft = { x: this.left, y: this.top };
     const topRight = { x: this.right, y: this.top };
@@ -17,7 +16,9 @@ class Road {
     const bottomRight = { x: this.right, y: this.bottom };
     this.borders = [
       [topLeft, bottomLeft],
+      [topLeft, topRight],
       [topRight, bottomRight],
+      [bottomLeft, bottomRight],
     ];
   }
 

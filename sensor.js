@@ -1,50 +1,67 @@
 class Sensor {
   constructor(car) {
     this.car = car;
-    this.rayCount = 5;
+    this.rayCount = 8;
     this.rayLength = 150;
-    this.raySpread = Math.PI / 2;
+    this.raySpread = (Math.PI * 7) / 4;
+    this.rayRotation = Math.PI / 4;
 
     this.rays = [];
     this.readings = [];
   }
 
-  update(roadBorders, traffic) {
+  update(spotPolygon) {
     this.#castRays();
     this.readings = [];
 
     for (let i = 0; i < this.rays.length; i++) {
-      this.readings.push(this.#getReading(this.rays[i], roadBorders, traffic));
+      this.readings.push(this.#getReading(this.rays[i], spotPolygon));
     }
+    this.squareDistances = this.readings.reduce(
+      (acc, reading) => acc + (reading ? Math.pow(reading.offset, 2) : 10000),
+      0
+    );
   }
 
-  #getReading(ray, roadBorders, traffic) {
+  #getReading(ray, spotPolygon) {
     let touches = [];
 
-    for (let roadBorder of roadBorders) {
-      const touch = getIntersection(
+    // for (let roadBorder of roadBorders) {
+    //   const touch = getIntersection(
+    //     ray[0],
+    //     ray[1],
+    //     roadBorder[0],
+    //     roadBorder[1]
+    //   );
+    //   if (touch) {
+    //     touches.push(touch);
+    //   }
+    // }
+
+    // for (let trafficCar of traffic) {
+    //   const poly = trafficCar.polygon;
+    //   for (let j = 0; j < poly.length; j++) {
+    //     const value = getIntersection(
+    //       ray[0],
+    //       ray[1],
+    //       poly[j],
+    //       poly[(j + 1) % poly.length]
+    //     );
+    //     if (value) {
+    //       touches.push(value);
+    //     }
+    //   }
+    // }
+
+    for (let i = 0; i < spotPolygon.length; i++) {
+      const value = getIntersection(
         ray[0],
         ray[1],
-        roadBorder[0],
-        roadBorder[1]
+        spotPolygon[i],
+        spotPolygon[(i + 1) % spotPolygon.length]
       );
-      if (touch) {
-        touches.push(touch);
-      }
-    }
-
-    for (let trafficCar of traffic) {
-      const poly = trafficCar.polygon;
-      for (let j = 0; j < poly.length; j++) {
-        const value = getIntersection(
-          ray[0],
-          ray[1],
-          poly[j],
-          poly[(j + 1) % poly.length]
-        );
-        if (value) {
-          touches.push(value);
-        }
+      if (value) {
+        touches.push(value);
       }
     }
 
@@ -65,7 +82,9 @@ class Sensor {
           this.raySpread / 2,
           -this.raySpread / 2,
           this.rayCount === 1 ? 0.5 : i / (this.rayCount - 1)
-        ) + this.car.angle;
+        ) +
+        this.car.angle +
+        this.rayRotation;
 
       const start = { x: this.car.x, y: this.car.y };
       const end = {

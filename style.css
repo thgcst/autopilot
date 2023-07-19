@@ -6,6 +6,7 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
+  position: relative;
 }
 
 #verticalButtons {
@@ -32,4 +33,13 @@ button:hover {
 
 #networkCanvas {
   background: black
+}
+
+#generation {
+  position: absolute;
+  transform: translateX(-500px);
+  color: white;
+  font-family: 'Courier New', Courier, monospace;
+  font-weight: 700;
+  font-size: 32px;
 }

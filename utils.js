@@ -22,6 +22,10 @@ function getIntersection(A, B, C, D) {
   return null;
 }
 
+function distanceBetween(A, B) {
+  return Math.hypot(A.x - B.x, A.y - B.y);
+}
+
 function polysIntersect(poly1, poly2) {
   for (let i = 0; i < poly1.length; i++) {
     for (let j = 0; j < poly2.length; j++) {
@@ -37,4 +41,31 @@ function polysIntersect(poly1, poly2) {
     }
   }
   return false;
+}
+
+function isPointInside(point, poly) {
+  let inside = false;
+  for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+    const xi = poly[i].x,
+      yi = poly[i].y;
+    const xj = poly[j].x,
+      yj = poly[j].y;
+
+    const intersect =
+      yi > point.y != yj > point.y &&
+      point.x < ((xj - xi) * (point.y - yi)) / (yj - yi) + xi;
+    if (intersect) {
+      inside = !inside;
+    }
+  }
+  return inside;
+}
+
+function isInside(poly1, poly2) {
+  for (let point of poly1) {
+    if (!isPointInside(point, poly2)) {
+      return false;
+    }
+  }
+  return true;
 }
