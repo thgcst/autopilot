@@ -16,7 +16,7 @@ class Car {
 
     if (controlType !== "DUMMY") {
       this.sensor = new Sensor(this);
-      this.brain = new NeuralNetwork([this.sensor.rayCount, 6, 4]);
+      this.brain = new NeuralNetwork([this.sensor.rayCount, 6, 6, 4]);
     }
     this.controls = new Controls(controlType);
   }
@@ -83,10 +83,11 @@ class Car {
 
   #move() {
     if (this.controls.forward) {
-      this.speed += this.acceleration;
+      this.speed += lerp(0, this.acceleration, this.controls.forward);
+      // this.speed += this.acceleration;
     }
     if (this.controls.reverse) {
-      this.speed -= this.acceleration;
+      this.speed -= lerp(0, this.acceleration, this.controls.reverse);
     }
 
     if (this.speed > this.maxSpeed) {
@@ -108,10 +109,12 @@ class Car {
 
     if (this.speed !== 0) {
       if (this.controls.left) {
-        this.angle += 0.03 * (this.speed > 0 ? 1 : -1);
+        this.angle +=
+          lerp(0, 0.03, this.controls.left) * (this.speed > 0 ? 1 : -1);
       }
       if (this.controls.right) {
-        this.angle -= 0.03 * (this.speed > 0 ? 1 : -1);
+        this.angle -=
+          lerp(0, 0.03, this.controls.right) * (this.speed > 0 ? 1 : -1);
       }
     }
 

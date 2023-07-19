@@ -65,13 +65,13 @@ class Level {
     }
 
     for (let i = 0; i < level.outputs.length; i++) {
-      let sum = 0;
+      let sum = level.biases[i];
       for (let j = 0; j < level.inputs.length; j++) {
         sum += level.inputs[j] * level.weights[j][i];
       }
 
-      if (sum > level.biases[i]) {
-        level.outputs[i] = 1;
+      if (sum > 0) {
+        level.outputs[i] = sum;
       } else {
         level.outputs[i] = 0;
       }
