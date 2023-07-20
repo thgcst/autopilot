@@ -16,7 +16,7 @@ class Car {
 
     if (controlType !== "DUMMY") {
       this.sensor = new Sensor(this);
-      this.brain = new NeuralNetwork([this.sensor.rayCount, 12, 6, 4]);
+      this.brain = new NeuralNetwork([this.sensor.rayCount, 6, 6, 6, 4]);
     }
     this.controls = new Controls(controlType);
   }
@@ -84,7 +84,6 @@ class Car {
   #move() {
     if (this.controls.forward) {
       this.speed += lerp(0, this.acceleration, this.controls.forward);
-      // this.speed += this.acceleration;
     }
     if (this.controls.reverse) {
       this.speed -= lerp(0, this.acceleration, this.controls.reverse);
@@ -138,6 +137,44 @@ class Car {
 
     if (this.sensor && drawSensor) {
       this.sensor.draw(ctx);
+    }
+  }
+
+  static getBestBrain() {
+    const brains = localStorage.getItem("bestBrain");
+    return JSON.parse(brains);
+  }
+
+  save() {
+    const bestBrain = Car.getBestBrain();
+    if (bestBrain) {
+      Car.crossover(bestBrain, this.brain);
+      localStorage.setItem("bestBrain", JSON.stringify(this.brain));
+    } else {
+      localStorage.setItem("bestBrain", JSON.stringify(this.brain));
+    }
+  }
+
+  static discardBestBrain() {
+    localStorage.removeItem("bestBrain");
+  }
+
+  static crossover(brain1, brain2) {
+    for (let level in brain1) {
+      for (let i in level.biases) {
+        const biasAverage =
+          (brain1[level].biases[i] + brain2[level].biases[i]) / 2;
+        brain1[level].biases[i] = biasAverage;
+        // brain2[level].biases[i] = biasAverage;
+      }
+      for (let i in brain1[level].weights) {
+        for (let j in brain1[level].weights[i]) {
+          const weightAverage =
+            (brain1[level].weights[i][j] + brain2[level].weights[i][j]) / 2;
+          brain1[level].weights[i][j] = weightAverage;
+          // brain2[level].weights[i][j] = weightAverage;
+        }
+      }
     }
   }
 }
