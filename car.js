@@ -16,6 +16,8 @@ class Car {
     this.crashedTraffic = false;
     this.crashedLaser = false;
 
+    this.dummiesOvertaken = 0;
+
     this.useBrain = controlType === "AI";
 
     if (controlType !== "DUMMY") {
@@ -30,6 +32,7 @@ class Car {
       this.#move();
       this.polygon = this.#createPolygon();
       this.damaged = this.#assessDamage(roadBorders, traffic, laserY);
+      this.dummiesOvertaken = traffic.filter((c) => c.y > this.y).length;
     }
 
     if (this.sensor) {

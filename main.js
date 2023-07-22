@@ -9,7 +9,7 @@ const networkCtx = networkCanvas.getContext("2d");
 const road = new Road(carCanvas.width / 2, carCanvas.width * 0.9);
 const laser = new Laser(road.getLaneCenter(1), 500, carCanvas.width, 2.5);
 
-const N = 500;
+const N = 1;
 const cars = generateCars(N);
 let bestCar = cars[0];
 if (localStorage.getItem("bestBrain")) {
@@ -37,7 +37,7 @@ function increaseTraffic() {
 function generateCars(N) {
   const cars = [];
   for (let i = 1; i <= N; i++) {
-    cars.push(new Car(road.getLaneCenter(1), 100, 30, 50, "AI"));
+    cars.push(new Car(road.getLaneCenter(1), 100, 30, 50, "KEYS"));
   }
   return cars;
 }
@@ -76,6 +76,15 @@ function animate(time) {
   networkCtx.lineDashOffset = -time / 50;
   Visualizer.drawNetwork(networkCtx, bestCar.brain);
   requestAnimationFrame(animate);
+
+  if (
+    cars.every((c) => c.damaged) ||
+    cars
+      .filter((c) => !c.damaged)
+      .every((c) => c.dummiesOvertaken >= traffic.length)
+  ) {
+    location.reload();
+  }
 }
 
 increaseTraffic();
