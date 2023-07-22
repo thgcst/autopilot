@@ -12,6 +12,10 @@ class Car {
     this.angle = 0;
     this.damaged = false;
 
+    this.crashedBorder = false;
+    this.crashedTraffic = false;
+    this.crashedLaser = false;
+
     this.useBrain = controlType === "AI";
 
     if (controlType !== "DUMMY") {
@@ -21,11 +25,11 @@ class Car {
     this.controls = new Controls(controlType);
   }
 
-  update(roadBorders, traffic) {
+  update(roadBorders, traffic, laserY) {
     if (!this.damaged) {
       this.#move();
       this.polygon = this.#createPolygon();
-      this.damaged = this.#assessDamage(roadBorders, traffic);
+      this.damaged = this.#assessDamage(roadBorders, traffic, laserY);
     }
 
     if (this.sensor) {
@@ -44,17 +48,30 @@ class Car {
     }
   }
 
-  #assessDamage(roadBorders, traffic) {
+  #assessDamage(roadBorders, traffic, laserY) {
     for (let roadBorder of roadBorders) {
       if (polysIntersect(this.polygon, roadBorder)) {
+        this.crashedBorder = true;
         return true;
       }
     }
     for (let dummyCar of traffic) {
       if (polysIntersect(this.polygon, dummyCar.polygon)) {
+        this.crashedTraffic = true;
         return true;
       }
     }
+
+    if (
+      polysIntersect(this.polygon, [
+        { x: 0, y: laserY },
+        { x: window.innerWidth, y: laserY },
+      ])
+    ) {
+      this.crashedLaser = true;
+      return true;
+    }
+
     return false;
   }
 
