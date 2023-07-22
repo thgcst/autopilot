@@ -160,25 +160,6 @@ class Car {
     }
   }
 
-  static getBestBrain() {
-    const brains = localStorage.getItem("bestBrain");
-    return JSON.parse(brains);
-  }
-
-  save() {
-    const bestBrain = Car.getBestBrain();
-    if (bestBrain) {
-      Car.crossover(bestBrain, this.brain);
-      localStorage.setItem("bestBrain", JSON.stringify(this.brain));
-    } else {
-      localStorage.setItem("bestBrain", JSON.stringify(this.brain));
-    }
-  }
-
-  static discardBestBrain() {
-    localStorage.removeItem("bestBrain");
-  }
-
   static crossover(brain1, brain2) {
     for (let level in brain1) {
       for (let i in level.biases) {

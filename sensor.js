@@ -3,13 +3,13 @@ class Sensor {
     this.car = car;
 
     this.raysDistribution = [
-      { angle: 0, length: 250 },
-      { angle: (10 * Math.PI) / 180, length: 220 },
-      { angle: (-10 * Math.PI) / 180, length: 220 },
-      { angle: (20 * Math.PI) / 180, length: 220 },
-      { angle: (-20 * Math.PI) / 180, length: 220 },
-      { angle: (40 * Math.PI) / 180, length: 100 },
-      { angle: (-40 * Math.PI) / 180, length: 100 },
+      { angle: 0, length: 350 },
+      { angle: (10 * Math.PI) / 180, length: 300 },
+      { angle: (-10 * Math.PI) / 180, length: 300 },
+      { angle: (20 * Math.PI) / 180, length: 290 },
+      { angle: (-20 * Math.PI) / 180, length: 290 },
+      { angle: (40 * Math.PI) / 180, length: 120 },
+      { angle: (-40 * Math.PI) / 180, length: 120 },
       { angle: (90 * Math.PI) / 180, length: 40 },
       { angle: (-90 * Math.PI) / 180, length: 40 },
       { angle: (120 * Math.PI) / 180, length: 40 },

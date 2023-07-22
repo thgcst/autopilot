@@ -9,18 +9,8 @@ const networkCtx = networkCanvas.getContext("2d");
 const road = new Road(carCanvas.width / 2, carCanvas.width * 0.9);
 const laser = new Laser(road.getLaneCenter(1), 500, carCanvas.width, 2.5);
 
-const N = 1;
+const N = 300;
 const cars = generateCars(N);
-let bestCar = cars[0];
-if (localStorage.getItem("bestBrain")) {
-  for (let i in cars) {
-    cars[i].brain = JSON.parse(localStorage.getItem("bestBrain"));
-    if (i != 0) {
-      NeuralNetwork.mutate(cars[i].brain, 0.5);
-    }
-  }
-}
-
 const traffic = [];
 
 function increaseTraffic() {
@@ -37,9 +27,14 @@ function increaseTraffic() {
 function generateCars(N) {
   const cars = [];
   for (let i = 1; i <= N; i++) {
-    cars.push(new Car(road.getLaneCenter(1), 100, 30, 50, "KEYS"));
+    cars.push(new Car(road.getLaneCenter(1), 100, 30, 50, "AI"));
   }
   return cars;
+}
+
+function discardBestBrains() {
+  localStorage.removeItem("bestBrains");
+  localStorage.removeItem("generation");
 }
 
 function animate(time) {
@@ -51,7 +46,7 @@ function animate(time) {
   }
   laser.update();
 
-  bestCar = cars.find((c) => c.y == Math.min(...cars.map((c) => c.y)));
+  const bestCar = cars.find((c) => c.y == Math.min(...cars.map((c) => c.y)));
 
   carCanvas.height = window.innerHeight;
   networkCanvas.height = window.innerHeight;
@@ -75,7 +70,6 @@ function animate(time) {
 
   networkCtx.lineDashOffset = -time / 50;
   Visualizer.drawNetwork(networkCtx, bestCar.brain);
-  requestAnimationFrame(animate);
 
   if (
     cars.every((c) => c.damaged) ||
@@ -83,9 +77,60 @@ function animate(time) {
       .filter((c) => !c.damaged)
       .every((c) => c.dummiesOvertaken >= traffic.length)
   ) {
+    for (let car of cars) {
+      car.brain.fitness =
+        car.dummiesOvertaken +
+        -car.y / 200 +
+        (car.damaged ? -5 : 0) +
+        (car.crashedBorder ? -2 : 0) +
+        (car.crashedTraffic ? -1 : 0) +
+        (car.crashedLaser ? -1000 : 0) +
+        (car.x == 100 ? -1000 : 0);
+    }
+    const fiveBestCars = cars
+      .map((c) => c.brain)
+      .sort((a, b) => b.fitness - a.fitness)
+      .slice(0, 5);
+    if (fiveBestCars.length > 0) {
+      localStorage.setItem("bestBrains", JSON.stringify(fiveBestCars));
+    }
+
+    const generation = localStorage.getItem("generation");
+    if (generation) {
+      localStorage.setItem("generation", parseInt(generation) + 1);
+    } else {
+      localStorage.setItem("generation", 1);
+    }
+
     location.reload();
+  }
+  requestAnimationFrame(animate);
+}
+
+function mutateCars() {
+  function mutationRate(fitness) {
+    if (fitness > 0) return 0.3;
+    if (fitness > 5) return 0.1;
+    if (fitness > 10) return 0.05;
+    return 1;
+  }
+
+  if (localStorage.getItem("bestBrains")) {
+    const bestBrains = JSON.parse(localStorage.getItem("bestBrains"));
+    for (let i in cars) {
+      cars[i].brain = JSON.parse(
+        JSON.stringify(bestBrains[i % bestBrains.length])
+      );
+      for (let i = bestBrains.length; i < cars.length; i++) {
+        NeuralNetwork.mutate(
+          cars[i].brain,
+          mutationRate(cars[i].brain.fitness)
+        );
+      }
+    }
   }
 }
 
+mutateCars();
 increaseTraffic();
 animate();
