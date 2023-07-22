@@ -1,9 +1,22 @@
 class Sensor {
   constructor(car) {
     this.car = car;
-    this.rayCount = 11;
-    this.rayLength = 250;
-    this.raySpread = (Math.PI * 2) / 3;
+
+    this.raysDistribution = [
+      { angle: 0, length: 250 },
+      { angle: (10 * Math.PI) / 180, length: 220 },
+      { angle: (-10 * Math.PI) / 180, length: 220 },
+      { angle: (20 * Math.PI) / 180, length: 220 },
+      { angle: (-20 * Math.PI) / 180, length: 220 },
+      { angle: (40 * Math.PI) / 180, length: 100 },
+      { angle: (-40 * Math.PI) / 180, length: 100 },
+      { angle: (90 * Math.PI) / 180, length: 40 },
+      { angle: (-90 * Math.PI) / 180, length: 40 },
+      { angle: (120 * Math.PI) / 180, length: 40 },
+      { angle: (-120 * Math.PI) / 180, length: 40 },
+      { angle: (180 * Math.PI) / 180, length: 100 },
+    ];
+    this.rayCount = this.raysDistribution.length;
 
     this.rays = [];
     this.readings = [];
@@ -59,18 +72,11 @@ class Sensor {
 
   #castRays() {
     this.rays = [];
-    for (let i = 0; i < this.rayCount; i++) {
-      const rayAngle =
-        lerp(
-          this.raySpread / 2,
-          -this.raySpread / 2,
-          this.rayCount === 1 ? 0.5 : i / (this.rayCount - 1)
-        ) + this.car.angle;
-
+    for (let { angle, length } of this.raysDistribution) {
       const start = { x: this.car.x, y: this.car.y };
       const end = {
-        x: this.car.x - Math.sin(rayAngle) * this.rayLength,
-        y: this.car.y - Math.cos(rayAngle) * this.rayLength,
+        x: this.car.x - Math.sin(angle + this.car.angle) * length,
+        y: this.car.y - Math.cos(angle + this.car.angle) * length,
       };
       this.rays.push([start, end]);
     }
